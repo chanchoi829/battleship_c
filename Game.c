@@ -63,18 +63,18 @@ struct Game* start() {
     }
     
     // Create computer's grid
-    place_computer_ship("Destroyer");
-    place_computer_ship("Submarine");
-    place_computer_ship("Cruiser");
-    place_computer_ship("Battleship");
-    place_computer_ship("Carrier");
+    place_computer_ship(game_ptr, "Destroyer");
+    place_computer_ship(game_ptr, "Submarine");
+    place_computer_ship(game_ptr, "Cruiser");
+    place_computer_ship(game_ptr, "Battleship");
+    place_computer_ship(game_ptr, "Carrier");
 
     // Create player's grid
-    place_player_ship("Destroyer");
-    place_player_ship("Submarine");
-    place_player_ship("Cruiser");
-    place_player_ship("Battleship");
-    place_player_ship("Carrier");
+    place_player_ship(game_ptr, "Destroyer");
+    place_player_ship(game_ptr, "Submarine");
+    place_player_ship(game_ptr, "Cruiser");
+    place_player_ship(game_ptr, "Battleship");
+    place_player_ship(game_ptr, "Carrier");
 
     return game_ptr;
 }
@@ -108,24 +108,90 @@ void draw_player_grid() {
 
 // Helper functions
 // Place computer's ship
-void place_computer_ship(const char* ship) {
+void place_computer_ship(struct Game* game_ptr, const char* ship) {
+	int ship_length;
+	char ship_letter;
 
+	check_ship_type(ship, &ship_length, &ship_letter);
+
+	// Direction: left, up, right, down
+	int* positions = &ship_length;
+	int directions[DIRECTIONS] = { -1, -10, 1, 10 };
+
+	// Generate random positions until the ship fits
+	while (!is_valid(&positions, game_ptr->computer_grid, rand() % 100,
+		directions[rand() % DIRECTIONS], ship_length)){}
+
+	int which_ship;
+	char* ship_name = "";
+	convert_char_to_ship(ship_letter, &ship_name, &which_ship);
+	free(ship_name);
+
+	// Set ship's hp
+	game_ptr->computer_ships[which_ship][0] = 0;
+	game_ptr->computer_ships[which_ship][1] = ship_length;
+
+	// Place the ship
+	int i;
+	for (i = 0; i < ship_length; ++i)
+		game_ptr->computer_grid[positions[i] / 10][positions[i] % 10] = ship_letter;
+
+	free(positions);
 }
 
 // Place player's ship
-void place_player_ship(const char* ship) {
+void place_player_ship(struct Game* game_ptr, const char* ship) {
 
 }
 
 // Check the ship's type
 void check_ship_type(const char* ship, int* ship_length, char* ship_letter) {
-
+	if (strcmp(ship, "Destroyer") == 0) {
+        *ship_length = 2;
+        *ship_letter = 'd';
+    }
+    else if (strcmp(ship, "Submarine") == 0) {
+        *ship_length = 3;
+        *ship_letter = 's';
+    }
+    else if (strcmp(ship, "Cruiser") == 0){ 
+        *ship_length = 3;
+        *ship_letter = 'c';
+    }
+    else if (strcmp(ship, "Battleship")) {
+        *ship_length = 4;
+        *ship_letter = 'b';
+    }
+    else {
+        *ship_length = 5;
+        *ship_letter = 'C';
+    }  
 }
 
 // Check if the given ship can fit
-int is_valid(int* positions, const char** grid,
-    int position, int direction, int ship_length) {
-    return 1;
+int is_valid(int** positions, char (*grid)[10],
+	int position, int direction, int ship_length) {
+	*positions = malloc(sizeof(int) * ship_length);
+
+	// Check if the ship fits
+	int ship_fits = 1, ship_index = 0, i;
+
+	for (i = 0; i < ship_length; ++i) {
+		int row = position / 10, col = position % 10;
+
+		// Check if the position is in range and if the ship can fit
+        if (position < 0 || position > 99 || (position % 10 == 0 && direction == -1) || (position % 10 == 9 && direction == 1)
+            || grid[row][col] != '.') {
+            ship_fits = 0;
+			free(positions);
+            break;
+        }
+
+		(*positions)[ship_index++] = position;
+		position += direction;
+	}
+
+	return ship_fits;
 }
 
 // Get user's input and check if it is valid
@@ -134,6 +200,30 @@ void read_position(char* position) {
 }
 
 // Convert a char to a ship name
-void convert_char_to_ship(char ship_char, char* ship, int* which_ship) {
-
+void convert_char_to_ship(char ship_char, char** ship, int* which_ship) {
+    if (ship_char == 'd') {
+        *which_ship = 0;
+		*ship = malloc(DESTROYER_STR + 1);
+		strcpy(*ship, "Destroyer");
+    }
+    else if (ship_char == 's') {
+        *which_ship = 1;
+		*ship = malloc(SUBMARINE_STR + 1);
+		strcpy(*ship, "Submarine");
+    }
+    else if (ship_char == 'c') {
+        *which_ship = 2;
+		*ship = malloc(CRUISER_STR + 1);
+		strcpy(*ship, "Cruiser");
+    }
+    else if (ship_char == 'b') {
+        *which_ship = 3;
+		*ship = malloc(BATTLESHIP_STR + 1);
+		strcpy(*ship, "Battleship");
+    }
+    else {
+        *which_ship = 4;
+		*ship = malloc(CARRIER_STR + 1);
+		strcpy(*ship, "Carrier");
+    }
 }

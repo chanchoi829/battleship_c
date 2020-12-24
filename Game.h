@@ -27,22 +27,22 @@ void draw_player_grid(void);
 
 // Helper functions
 // Place computer's ship
-void place_computer_ship(const char* ship);
+void place_computer_ship(struct Game* game_ptr, const char* ship);
 
 // Place player's ship
-void place_player_ship(const char* ship);
+void place_player_ship(struct Game* game_ptr, const char* ship);
 
 // Check the ship's type
 void check_ship_type(const char* ship, int* ship_length, char* ship_letter);
 
 // Check if the given ship can fit
-int is_valid(int* positions, const char** grid,
-    int position, int direction, int ship_length);
+int is_valid(int** positions, char(*grid)[10],
+	int position, int direction, int ship_length);
 
 // Get user's input and check if it is valid
 void read_position(char* position);
 
 // Convert a char to a ship name
-void convert_char_to_ship(char ship_char, char* ship, int* which_ship);
+void convert_char_to_ship(char ship_char, char** ship, int* which_ship);
 
 #endif
