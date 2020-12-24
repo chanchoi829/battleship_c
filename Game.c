@@ -144,8 +144,11 @@ void computer_turn(struct Game* game_ptr) {
                 int which_ship;
                 char* ship_name = "";
 
-                convert_char_to_ship(game_ptr->computer_grid[row][col], &ship_name, &which_ship);
+
+                convert_char_to_ship(game_ptr->player_grid[row][col], &ship_name, &which_ship);
                 ++(game_ptr->player_ships[which_ship][0]);
+
+                printf("Debug %d %s %d %d", which_ship, ship_name, game_ptr->player_ships[which_ship][0], game_ptr->player_ships[which_ship][1]);
 
                 if (game_ptr->player_ships[which_ship][0] == game_ptr->player_ships[which_ship][1]) {
                     printf("Hit! Your %s has been sunk!\n", ship_name);
