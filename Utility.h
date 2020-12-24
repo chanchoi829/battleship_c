@@ -6,6 +6,8 @@
 #define MAX_DIFFICULTY 4
 #define MAX_DIFFICULTY_STR "%4s"
 #define NUM_SHIPS 5
+#define MAX_POINT 3
+#define POINT_STR "%3s"
 
 #define DESTROYER_STR 9
 #define SUBMARINE_STR 9

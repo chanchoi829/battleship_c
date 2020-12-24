@@ -40,7 +40,7 @@ int is_valid(int** positions, char(*grid)[10],
 	int position, int direction, int ship_length);
 
 // Get user's input and check if it is valid
-void read_position(char* position);
+int read_position(char** position);
 
 // Convert a char to a ship name
 void convert_char_to_ship(char ship_char, char** ship, int* which_ship);
