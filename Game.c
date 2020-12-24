@@ -158,12 +158,50 @@ void player_turn(struct Game* game_ptr) {
 
 // Draw computer's grid
 void draw_computer_grid(struct Game* game_ptr) {
+    printf("      Enemy Grid\n\n  ");
 
+    char i;
+    for (i = '1'; i <= '9'; ++i)
+        printf("%c ", i);
+
+    printf("10");
+
+    for (i = 'A'; i <= 'J'; ++i) {
+        printf("%c ", i);
+
+        int j;
+        for (j = 0; j < GRID_SIZE; ++j) {
+            char tmp = game_ptr->computer_grid[i - 'A'][j];
+            if (tmp != '.' && tmp != 'o' && tmp != 'x')
+                tmp = '.';
+            printf("%c ", tmp);
+        }
+
+        printf("\n");
+    }
 }
 
 // Draw player's grid
 void draw_player_grid(struct Game* game_ptr) {
+    printf("      Your Grid\n\n  ");
 
+    char i;
+    for (i = '1'; i <= '9'; ++i)
+        printf("%c ", i);
+
+    for (i = 'A'; i <= 'J'; ++i) {
+        printf("%c ", i);
+
+        int j;
+        for (j = 0; j < GRID_SIZE; ++j) {
+            char tmp = game_ptr->player_grid[i - 'A'][j];
+            if (tmp != 'o')
+                tmp = '.';
+            printf("%c ", tmp);
+        }
+
+        printf("\n");
+    }
 }
 
 // Helper functions
