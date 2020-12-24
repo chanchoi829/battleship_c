@@ -134,7 +134,7 @@ void computer_turn(struct Game* game_ptr) {
         }
 
         if (game_ptr->player_grid[row][col] != 'o' && game_ptr->player_grid[row][col] != 'x') {
-            printf("Computer attacks %c%d .", (position / GRID_SIZE) + 'A', (position % GRID_SIZE) + 1);
+            printf("Computer attacks %c%d. ", (position / GRID_SIZE) + 'A', (position % GRID_SIZE) + 1);
             if (game_ptr->player_grid[row][col] == '.') {
                 game_ptr->player_grid[row][col] = 'o';
 
@@ -145,11 +145,11 @@ void computer_turn(struct Game* game_ptr) {
                 char* ship_name = "";
 
                 convert_char_to_ship(game_ptr->computer_grid[row][col], &ship_name, &which_ship);
-                ++game_ptr->player_ships[which_ship][0];
+                ++(game_ptr->player_ships[which_ship][0]);
 
                 if (game_ptr->player_ships[which_ship][0] == game_ptr->player_ships[which_ship][1]) {
                     printf("Hit! Your %s has been sunk!\n", ship_name);
-                    ++game_ptr->player_sunk;
+                    ++(game_ptr->player_sunk);
                     game_ptr->row_prev = -1;
                     game_ptr->col_prev = -1;
                 }
@@ -229,7 +229,7 @@ void player_turn(struct Game* game_ptr) {
         // When hp is 0, the ship sinks
         if (game_ptr->computer_ships[which_ship][0] ==
             game_ptr->computer_ships[which_ship][1]) {
-            ++game_ptr->computer_sunk;
+            ++(game_ptr->computer_sunk);
 
             printf("Computer's %s sunk!\n", ship_name);
         }
@@ -386,6 +386,16 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
             game_ptr->player_grid[positions[i] / GRID_SIZE][positions[i] % GRID_SIZE] = ship_letter;
         
         free(positions);
+
+        // Get the ship's index
+        int which_ship;
+        char* ship_name = "";
+        convert_char_to_ship(ship_letter, &ship_name, &which_ship);
+        free(ship_name);
+
+        // Give default values to player_ships
+        game_ptr->player_ships[which_ship][0] = 0;
+        game_ptr->player_ships[which_ship][1] = ship_length;
 
         return;
     }
