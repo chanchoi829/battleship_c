@@ -49,6 +49,7 @@ int restart(void) {
         printf("Restart?\nType yes or no\n");
 
         char answer[MAX_ANSWER + 1];
+        strcpy(answer, "yes");
         scanf(MAX_ANSWER_STR, answer);
 
         // Convert to lower case

@@ -84,6 +84,8 @@ struct Game* start() {
 void end(struct Game* game_ptr) {
     free(game_ptr->computer_grid);
     free(game_ptr->player_grid);
+    free(game_ptr->computer_ships);
+    free(game_ptr->player_ships);
     free(game_ptr);
 }
 
@@ -343,6 +345,7 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
 
         printf("\nExample: right\nEnter the direction(left/right/up/down): ");
         char direction[MAX_DIRECTION + 1];
+        strcpy(direction, "right");
         scanf(MAX_DIRECTION_STR, direction);
 
         // Convert to lower case
