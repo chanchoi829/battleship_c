@@ -88,7 +88,85 @@ void end(struct Game* game_ptr) {
 
 // Simulate computer's turn
 void computer_turn(struct Game* game_ptr) {
+    while (1) {
+        int row, col, position;
 
+                // Easy mode
+        if (game_ptr->easy || game_ptr->row_prev == -1) {
+            position = rand() % 100;
+            row = position / 10;
+            col = position % 10;
+        }
+        // Hard mode
+        else {
+            int r_p = game_ptr->row_prev, c_p = game_ptr->col_prev;
+
+            if (r_p - 1 >= 0 && game_ptr->player_grid[r_p - 1][c_p] != 'o'
+                && game_ptr->player_grid[r_p - 1][c_p] != 'x') {
+                row = r_p - 1;
+                col = c_p;
+                position = row * 10 + col;
+            }
+            else if (r_p + 1 <= 9 && game_ptr->player_grid[r_p + 1][c_p] != 'o' &&
+                game_ptr->player_grid[r_p + 1][c_p] != 'x') {
+                row = r_p + 1;
+                col = c_p;
+                position = row * 10 + col;
+            }
+            else if (c_p - 1 >= 0 && game_ptr->player_grid[r_p][c_p - 1] != 'o' &&
+                game_ptr->player_grid[r_p][c_p - 1] != 'x') {
+                row = r_p;
+                col = c_p - 1;
+                position = row * 10 + col;
+            }
+            else if (c_p + 1 >= 0 && game_ptr->player_grid[r_p][c_p + 1] != 'o' &&
+                game_ptr->player_grid[r_p][c_p + 1] != 'x') {
+                row = r_p;
+                col = c_p + 1;
+                position = row * 10 + col;
+            }
+            else {
+                position = rand() % 100;
+                row = position / 10;
+                col = position % 10;
+            }
+        }
+
+        if (game_ptr->player_grid[row][col] != 'o' && game_ptr->player_grid[row][col] != 'x') {
+            printf("Computer attacks %c%c . ", (position / 10) + 'A', (position % 10) + 1);
+            if (game_ptr->player_grid[row][col] == '.') {
+                game_ptr->player_grid[row][col] = 'o';
+
+                printf("Missed!\n");
+            }
+            else {
+                int which_ship;
+                char* ship_name = "";
+
+                convert_char_to_ship(game_ptr->computer_grid[row][col], &ship_name, &which_ship);
+                ++game_ptr->player_ships[which_ship][0];
+
+                if (game_ptr->player_ships[which_ship][0] == game_ptr->player_ships[which_ship][1]) {
+                    printf("Hit! Your %s has been sunk!\n", ship_name);
+                    ++game_ptr->player_sunk;
+                    game_ptr->row_prev = -1;
+                    game_ptr->col_prev = -1;
+                }
+                else {
+                    printf("Hit!\n");
+
+                    // Save the point for the hard mode
+                    game_ptr->row_prev = row;
+                    game_ptr->col_prev = col;
+                }
+
+                free(ship_name);
+
+                game_ptr->player_grid[row][col] = 'x';
+            }
+            return;
+        }
+    }
 }
 
 // Simulate player's turn
@@ -150,6 +228,8 @@ void player_turn(struct Game* game_ptr) {
 
             printf("Computer's %s sunk!\n", ship_name);
         }
+
+        free(ship_name);
 
         game_ptr->computer_grid[row][col] = 'x';
         return;
