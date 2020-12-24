@@ -133,7 +133,7 @@ void computer_turn(struct Game* game_ptr) {
         }
 
         if (game_ptr->player_grid[row][col] != 'o' && game_ptr->player_grid[row][col] != 'x') {
-            printf("Computer attacks %c%c . ", (position / 10) + 'A', (position % 10) + 1);
+            printf("Computer attacks %c%d . ", (position / 10) + 'A', (position % 10) + 1);
             if (game_ptr->player_grid[row][col] == '.') {
                 game_ptr->player_grid[row][col] = 'o';
 
@@ -190,12 +190,14 @@ void player_turn(struct Game* game_ptr) {
             == game_ptr->computer_ships[4][1] ? "sunk" : "afloat");
 
 
+        // Read in a position
+        printf("\nExample: G5\nAttack a point: ");
         char* position = "";
         if (!read_position(&position))
             continue;
 
         // Convert to row and col
-        int row = position[0] - 'a', col = (sizeof(position) == MAX_POINT + 1 ? 9 : position[1] - '1');
+        int row = position[0] - 'a', col = (strlen(position) == 2 ? position[1] - '1' : 9);
 
         free(position);
 
@@ -210,6 +212,8 @@ void player_turn(struct Game* game_ptr) {
         if (game_ptr->computer_grid[row][col] == '.') {
             printf("Miss!\n");
             game_ptr->computer_grid[row][col] = 'o';
+
+            return;
         }
 
         printf("Hit!\n");
@@ -244,7 +248,7 @@ void draw_computer_grid(struct Game* game_ptr) {
     for (i = '1'; i <= '9'; ++i)
         printf("%c ", i);
 
-    printf("10");
+    printf("10\n");
 
     for (i = 'A'; i <= 'J'; ++i) {
         printf("%c ", i);
@@ -269,13 +273,15 @@ void draw_player_grid(struct Game* game_ptr) {
     for (i = '1'; i <= '9'; ++i)
         printf("%c ", i);
 
+    printf("10\n");
+
     for (i = 'A'; i <= 'J'; ++i) {
         printf("%c ", i);
 
         int j;
         for (j = 0; j < GRID_SIZE; ++j) {
             char tmp = game_ptr->player_grid[i - 'A'][j];
-            if (tmp != 'o')
+            if (tmp == 'o')
                 tmp = '.';
             printf("%c ", tmp);
         }
@@ -327,7 +333,7 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
     while (1) {
         // Draw grids
         draw_player_grid(game_ptr);
-        printf("\nExample: G5\nPlace your %s (length %d ): ", ship, ship_length);
+        printf("\nExample: G5\nPlace your %s (length %d): ", ship, ship_length);
 
         char* position = "";
         if (!read_position(&position))
@@ -339,7 +345,7 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
 
         // Convert to lower case
         size_t a;
-        for (a = 0; a < MAX_DIFFICULTY + 1; ++a)
+        for (a = 0; a < MAX_DIRECTION + 1; ++a)
             direction[a] = tolower(direction[a]);
 
         int direction_converted;
@@ -351,7 +357,7 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
             direction_converted = -GRID_SIZE;
         else if (strncmp(direction, "right", 5) == 0)
             direction_converted = 1;
-        else if (strncmp(direction, "down", 4))
+        else if (strncmp(direction, "down", 4) == 0)
             direction_converted = GRID_SIZE;
         else {
             // Print an error message and skip rest of the line
@@ -359,15 +365,14 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
             while (getchar() != '\n');
             continue;
         }
-        
-        int* positions = &ship_length;
 
         // Convert position to a number (0 ~ 99)
-        int position_converted = (position[0] - 'a') * 10 + (sizeof(position)
-            == MAX_POINT + 1 ? 9 : position[1] - '1');
+        int position_converted = (position[0] - 'a') * 10 + (strlen(position)
+            == 2 ? position[1] - '1' : 9);
 
         free(position);
 
+        int* positions = &ship_length;
         if (!is_valid(&positions, game_ptr->player_grid, position_converted, direction_converted, ship_length)) {
             // Print an error message and skip rest of the line
             printf("Ship does not fit!\n");
@@ -399,7 +404,7 @@ void check_ship_type(const char* ship, int* ship_length, char* ship_letter) {
         *ship_length = 3;
         *ship_letter = 'c';
     }
-    else if (strcmp(ship, "Battleship")) {
+    else if (strcmp(ship, "Battleship") == 0) {
         *ship_length = 4;
         *ship_letter = 'b';
     }
@@ -443,10 +448,8 @@ int read_position(char** position) {
     scanf(POINT_STR, position_);
 
     // Convert to lower case
-    size_t a;
-    for (a = 0; a < MAX_DIFFICULTY + 1; ++a)
-        position_[a] = tolower(position_[a]);
-
+    position_[0] = tolower(position_[0]);
+ 
     // Check the input
     if (position_[0] < 'a' || position_[0] > 'j') {
         printf("Enter a valid answer!\n");
@@ -470,6 +473,7 @@ int read_position(char** position) {
     if (position_[MAX_POINT] == '!') {
         *position = malloc(MAX_POINT);
         strncpy(*position, position_, 2);
+        (*position)[MAX_POINT - 1] = '\0';
     }
     // Length 3
     else {
@@ -507,4 +511,14 @@ void convert_char_to_ship(char ship_char, char** ship, int* which_ship) {
         *ship = malloc(CARRIER_STR + 1);
         strcpy(*ship, "Carrier");
     }
+}
+
+// Get computer's number of sunk ships
+int get_computer_sunk(struct Game* game_ptr) {
+    return game_ptr->computer_sunk;
+}
+
+// Get player's number of sunk ships
+int get_player_sunk(struct Game* game_ptr) {
+    return game_ptr->player_sunk;
 }

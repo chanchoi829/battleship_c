@@ -3,6 +3,8 @@
 
 #define DIRECTIONS 4
 #define GRID_SIZE 10
+#define MAX_ANSWER 3
+#define MAX_ANSWER_STR "%3s"
 #define MAX_DIFFICULTY 4
 #define MAX_DIFFICULTY_STR "%4s"
 #define MAX_DIRECTION 5

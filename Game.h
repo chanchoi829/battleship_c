@@ -45,4 +45,10 @@ int read_position(char** position);
 // Convert a char to a ship name
 void convert_char_to_ship(char ship_char, char** ship, int* which_ship);
 
+// Get computer's number of sunk ships
+int get_computer_sunk(struct Game* game_ptr);
+
+// Get player's number of sunk ships
+int get_player_sunk(struct Game* game_ptr);
+
 #endif
