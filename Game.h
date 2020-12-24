@@ -14,16 +14,16 @@ struct Game* start(void);
 void end(struct Game* game_ptr);
 
 // Simulate computer's turn
-void computer_turn(void);
+void computer_turn(struct Game* game_ptr);
 
 // Simulate player's turn
-void player_turn(void);
+void player_turn(struct Game* game_ptr);
 
 // Draw computer's grid
-void draw_computer_grid(void);
+void draw_computer_grid(struct Game* game_ptr);
 
 // Draw player's grid
-void draw_player_grid(void);
+void draw_player_grid(struct Game* game_ptr);
 
 // Helper functions
 // Place computer's ship
