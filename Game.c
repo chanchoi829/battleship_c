@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 struct Game {
     char (*computer_grid)[GRID_SIZE], (*player_grid)[GRID_SIZE];
@@ -34,8 +35,8 @@ struct Game* start() {
 
     game_ptr->computer_sunk = 0;
     game_ptr->player_sunk = 0;
-    game_ptr->row_prev = 0;
-    game_ptr->col_prev = 0;
+    game_ptr->row_prev = -1;
+    game_ptr->col_prev = -1;
 
     // Read in a difficulty
     while (1) {
@@ -91,11 +92,11 @@ void computer_turn(struct Game* game_ptr) {
     while (1) {
         int row, col, position;
 
-                // Easy mode
+        // Easy mode
         if (game_ptr->easy || game_ptr->row_prev == -1) {
             position = rand() % 100;
-            row = position / 10;
-            col = position % 10;
+            row = position / GRID_SIZE;
+            col = position % GRID_SIZE;
         }
         // Hard mode
         else {
@@ -105,35 +106,35 @@ void computer_turn(struct Game* game_ptr) {
                 && game_ptr->player_grid[r_p - 1][c_p] != 'x') {
                 row = r_p - 1;
                 col = c_p;
-                position = row * 10 + col;
+                position = row * GRID_SIZE + col;
             }
             else if (r_p + 1 <= 9 && game_ptr->player_grid[r_p + 1][c_p] != 'o' &&
                 game_ptr->player_grid[r_p + 1][c_p] != 'x') {
                 row = r_p + 1;
                 col = c_p;
-                position = row * 10 + col;
+                position = row * GRID_SIZE + col;
             }
             else if (c_p - 1 >= 0 && game_ptr->player_grid[r_p][c_p - 1] != 'o' &&
                 game_ptr->player_grid[r_p][c_p - 1] != 'x') {
                 row = r_p;
                 col = c_p - 1;
-                position = row * 10 + col;
+                position = row * GRID_SIZE + col;
             }
             else if (c_p + 1 >= 0 && game_ptr->player_grid[r_p][c_p + 1] != 'o' &&
                 game_ptr->player_grid[r_p][c_p + 1] != 'x') {
                 row = r_p;
                 col = c_p + 1;
-                position = row * 10 + col;
+                position = row * GRID_SIZE + col;
             }
             else {
                 position = rand() % 100;
-                row = position / 10;
-                col = position % 10;
+                row = position / GRID_SIZE;
+                col = position % GRID_SIZE;
             }
         }
 
         if (game_ptr->player_grid[row][col] != 'o' && game_ptr->player_grid[row][col] != 'x') {
-            printf("Computer attacks %c%d . ", (position / 10) + 'A', (position % 10) + 1);
+            printf("Computer attacks %c%d .", (position / GRID_SIZE) + 'A', (position % GRID_SIZE) + 1);
             if (game_ptr->player_grid[row][col] == '.') {
                 game_ptr->player_grid[row][col] = 'o';
 
@@ -177,7 +178,7 @@ void player_turn(struct Game* game_ptr) {
         printf("\n");
         draw_player_grid(game_ptr);
 
-        printf("***************************\n");
+        printf("\n***************************\n");
         printf("Computer's Destroyer(length 2): %s\n", game_ptr->computer_ships[0][0]
             == game_ptr->computer_ships[0][1] ? "sunk" : "afloat");
         printf("Computer's Submarine(length 3): %s\n", game_ptr->computer_ships[1][0]

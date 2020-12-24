@@ -12,7 +12,7 @@ int restart(void);
 int main(void) {
     // Set the seed for rand()
     srand(time(NULL));
-    
+
     while (1) {
 
         struct Game* game_ptr = start();

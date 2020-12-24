@@ -4,7 +4,7 @@ CC = gcc
 LD = gcc
 
 # specify compile and link options
-CFLAGS = -c -std=c99 -pedantic-errors -Wmissing-prototypes -Wall -g
+CFLAGS = -c -std=c99 -pedantic-errors -Wmissing-prototypes -Wall
 LFLAGS = -Wall
 
 OBJS = main.o Game.o
