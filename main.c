@@ -14,17 +14,18 @@ int main(void) {
     srand(time(NULL));
 
     while (1) {
-
         struct Game* game_ptr = start();
         printf("***************************\nGame Start!");
 
         while (1) {
+            // Player's turn
             player_turn(game_ptr);
             if (get_computer_sunk(game_ptr) == NUM_SHIPS) {
                 printf("You Win!\n");
                 break;
             }
 
+            // Computer's turn
             computer_turn(game_ptr);
             if (get_player_sunk(game_ptr) == NUM_SHIPS) {
                 printf("You lose!\n");
@@ -32,6 +33,7 @@ int main(void) {
             }
         }
 
+        // Free memory
         end(game_ptr);
 
         if (!restart()) {

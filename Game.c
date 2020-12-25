@@ -7,8 +7,11 @@
 #include <time.h>
 
 struct Game {
+    // Grids
     char (*computer_grid)[GRID_SIZE], (*player_grid)[GRID_SIZE];
+    // Number of ships sunk + ship HP
     int (*computer_ships)[2], (*player_ships)[2];
+    // Keeps track of number of sunk ships. Saved points are for hard mode.
     int computer_sunk, player_sunk, row_prev, col_prev, easy;
 };
 
@@ -30,6 +33,7 @@ struct Game* start() {
         }
     }
 
+    // Set default values
     game_ptr->computer_ships = malloc(sizeof(*game_ptr->computer_ships) * NUM_SHIPS);
     game_ptr->player_ships = malloc(sizeof(*game_ptr->player_ships) * NUM_SHIPS);
 
@@ -104,24 +108,29 @@ void computer_turn(struct Game* game_ptr) {
         else {
             int r_p = game_ptr->row_prev, c_p = game_ptr->col_prev;
 
+            // Attack a point that is near the saved point
+            // Up
             if (r_p - 1 >= 0 && game_ptr->player_grid[r_p - 1][c_p] != 'o'
                 && game_ptr->player_grid[r_p - 1][c_p] != 'x') {
                 row = r_p - 1;
                 col = c_p;
                 position = row * GRID_SIZE + col;
             }
+            // Down
             else if (r_p + 1 <= 9 && game_ptr->player_grid[r_p + 1][c_p] != 'o' &&
                 game_ptr->player_grid[r_p + 1][c_p] != 'x') {
                 row = r_p + 1;
                 col = c_p;
                 position = row * GRID_SIZE + col;
             }
+            // Left
             else if (c_p - 1 >= 0 && game_ptr->player_grid[r_p][c_p - 1] != 'o' &&
                 game_ptr->player_grid[r_p][c_p - 1] != 'x') {
                 row = r_p;
                 col = c_p - 1;
                 position = row * GRID_SIZE + col;
             }
+            // Right
             else if (c_p + 1 >= 0 && game_ptr->player_grid[r_p][c_p + 1] != 'o' &&
                 game_ptr->player_grid[r_p][c_p + 1] != 'x') {
                 row = r_p;
@@ -135,27 +144,31 @@ void computer_turn(struct Game* game_ptr) {
             }
         }
 
+        // Attack a point that has not been attacked
         if (game_ptr->player_grid[row][col] != 'o' && game_ptr->player_grid[row][col] != 'x') {
             printf("Computer attacks %c%d. ", (position / GRID_SIZE) + 'A', (position % GRID_SIZE) + 1);
+            // Miss
             if (game_ptr->player_grid[row][col] == '.') {
                 game_ptr->player_grid[row][col] = 'o';
 
                 printf("Missed!\n");
             }
+            // Hit
             else {
                 int which_ship;
                 char* ship_name = "";
 
-
                 convert_char_to_ship(game_ptr->player_grid[row][col], &ship_name, &which_ship);
                 ++(game_ptr->player_ships[which_ship][0]);
 
+                // Ship has been sunk
                 if (game_ptr->player_ships[which_ship][0] == game_ptr->player_ships[which_ship][1]) {
                     printf("Hit! Your %s has been sunk!\n", ship_name);
                     ++(game_ptr->player_sunk);
                     game_ptr->row_prev = -1;
                     game_ptr->col_prev = -1;
                 }
+                // Ship has not been sunk yet
                 else {
                     printf("Hit!\n");
 
@@ -166,6 +179,7 @@ void computer_turn(struct Game* game_ptr) {
 
                 free(ship_name);
 
+                // Mark the grid
                 game_ptr->player_grid[row][col] = 'x';
             }
             return;
@@ -181,6 +195,7 @@ void player_turn(struct Game* game_ptr) {
         printf("\n");
         draw_player_grid(game_ptr);
 
+        // Show which computer ships have sunk
         printf("\n***************************\n");
         printf("Computer's Destroyer(length 2): %s\n", game_ptr->computer_ships[0][0]
             == game_ptr->computer_ships[0][1] ? "sunk" : "afloat");
@@ -205,6 +220,7 @@ void player_turn(struct Game* game_ptr) {
 
         free(position);
 
+        // Check if the point has been attacked already
         if (game_ptr->computer_grid[row][col] == 'o' || game_ptr->computer_grid[row][col] == 'x') {
             // Print an error message and skip rest of the line
             printf("Already attacked this point!\n");
@@ -213,6 +229,7 @@ void player_turn(struct Game* game_ptr) {
             continue;
         }
 
+        // Miss
         if (game_ptr->computer_grid[row][col] == '.') {
             printf("Miss!\n");
             game_ptr->computer_grid[row][col] = 'o';
@@ -227,6 +244,7 @@ void player_turn(struct Game* game_ptr) {
 
         convert_char_to_ship(game_ptr->computer_grid[row][col], &ship_name, &which_ship);
 
+        // Increment the ship's damage taken
         ++(game_ptr->computer_ships[which_ship][0]);
 
         // When hp is 0, the ship sinks
@@ -239,6 +257,7 @@ void player_turn(struct Game* game_ptr) {
 
         free(ship_name);
 
+        // Mark the point
         game_ptr->computer_grid[row][col] = 'x';
         return;
     }
@@ -248,24 +267,27 @@ void player_turn(struct Game* game_ptr) {
 void draw_computer_grid(struct Game* game_ptr) {
     printf("      Enemy Grid\n\n  ");
 
+    // Print numbers
     char i;
     for (i = '1'; i <= '9'; ++i)
         printf("%c ", i);
 
     printf("10\n");
 
+    // Print letters
     for (i = 'A'; i <= 'J'; ++i) {
         printf("%c ", i);
 
         int j;
         for (j = 0; j < GRID_SIZE; ++j) {
             char tmp = game_ptr->computer_grid[i - 'A'][j];
+            // Do not show ships' locations to the player
             if (tmp != '.' && tmp != 'o' && tmp != 'x')
                 tmp = '.';
             printf("%c ", tmp);
         }
 
-        printf("\n");
+        printf("\n\n");
     }
 }
 
@@ -273,24 +295,27 @@ void draw_computer_grid(struct Game* game_ptr) {
 void draw_player_grid(struct Game* game_ptr) {
     printf("      Your Grid\n\n  ");
 
+    // Print numbers
     char i;
     for (i = '1'; i <= '9'; ++i)
         printf("%c ", i);
 
     printf("10\n");
 
+    // Print letters
     for (i = 'A'; i <= 'J'; ++i) {
         printf("%c ", i);
 
         int j;
         for (j = 0; j < GRID_SIZE; ++j) {
             char tmp = game_ptr->player_grid[i - 'A'][j];
+            // Don't show computer's missed attacks
             if (tmp == 'o')
                 tmp = '.';
             printf("%c ", tmp);
         }
 
-        printf("\n");
+        printf("\n\n");
     }
 }
 
@@ -405,7 +430,7 @@ void place_player_ship(struct Game* game_ptr, const char* ship) {
     }
 }
 
-// Check the ship's type
+// Check the ship's type and assign values accordingly
 void check_ship_type(const char* ship, int* ship_length, char* ship_letter) {
 	if (strcmp(ship, "Destroyer") == 0) {
         *ship_length = 2;
